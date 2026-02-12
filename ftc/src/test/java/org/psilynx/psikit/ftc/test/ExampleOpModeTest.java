@@ -1,11 +1,10 @@
 package org.psilynx.psikit.ftc.test;
 
 
-import org.psilynx.psikit.ftc.PsiKitLinearOpMode;
-
 import org.psilynx.psikit.core.Logger;
 import org.psilynx.psikit.core.rlog.RLOGServer;
 import org.psilynx.psikit.core.rlog.RLOGWriter;
+import org.psilynx.psikit.ftc.PsiKitLinearOpMode;
 
 class ConceptPsiKitLogger extends PsiKitLinearOpMode {
     @Override
@@ -13,8 +12,6 @@ class ConceptPsiKitLogger extends PsiKitLinearOpMode {
         Logger.addDataReceiver(new RLOGServer());
         Logger.addDataReceiver(new RLOGWriter("/sdcard/FIRST/log.rlog"));
         Logger.recordMetadata("some metadata", "string value");
-
-
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
         Logger.periodicAfterUser(0, 0);
 
@@ -51,6 +48,7 @@ class ConceptPsiKitLogger extends PsiKitLinearOpMode {
 
             Logger.recordOutput("OpMode/example", 2.0);
             // example
+
 
             double afterUserStart = Logger.getTimestamp();
             Logger.periodicAfterUser(
