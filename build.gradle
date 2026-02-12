@@ -76,25 +76,4 @@ kotlin {
     }
 }
 
-subprojects {
-    // Gradle 8+ disallows configurations from acting as both a resolution root and a variant.
-    // Some Android/IDE tooling creates *RuntimeClasspathCopy configurations that must be resolvable-only.
-    configurations.configureEach {
-        if (name.endsWith('RuntimeClasspathCopy')) {
-            canBeConsumed = false
-            canBeResolved = true
-        }
-    }
-}
-
-// Some plugins may mutate configuration flags after creation; reassert after evaluation.
-gradle.projectsEvaluated {
-    allprojects {
-        configurations.matching { it.name.endsWith('RuntimeClasspathCopy') }.configureEach {
-            canBeConsumed = false
-            canBeResolved = true
-        }
-    }
-
-}
 
