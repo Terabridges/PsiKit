@@ -95,4 +95,4 @@ gradle.projectsEvaluated {
             canBeResolved = true
         }
     }
-}
+
