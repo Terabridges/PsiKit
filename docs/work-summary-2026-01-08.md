@@ -61,11 +61,7 @@ After confirming no internal references:
 - Updated `docs/usage.md`
   - Now documents two supported linear patterns:
     1) Manual session (`LinearOpMode + FtcLoggingSession`)
-<<<<<<< HEAD
-    2) Automatic session (drop-in `com.qualcomm...PsiKitLinearOpMode`)
-=======
     2) Automatic session (AutoLog wrapper)
->>>>>>> upstream/main
   - Explicitly calls out the `opModeIsActive()` / `opModeInInit()` requirement for automatic ticking.
 
 ## 2025_Decode: minimal examples

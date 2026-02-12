@@ -282,9 +282,9 @@ public class LinearSessionOnly extends LinearOpMode {
 }
 ```
 
-    ### 3b) Annotated LinearOpMode, with explicit per-loop ticking (recommended)
+### 3b) Annotated LinearOpMode, with explicit per-loop ticking (recommended)
 
-    If you annotate a plain `LinearOpMode`, PsiKit will start/end the session automatically — but you can also add per-loop calls to get bulk-cache + input logging behavior similar to the iterative wrapper.
+If you annotate a plain `LinearOpMode`, PsiKit will start/end the session automatically — but you can also add per-loop calls to get bulk-cache + input logging behavior similar to the iterative wrapper.
 
 What these calls do:
 - `PsiKitAutoLogger.linearPeriodicBeforeUser(this)` runs `Logger.periodicBeforeUser()` and (if the auto-log session is active) `FtcLoggingSession.logOncePerLoop(...)`.

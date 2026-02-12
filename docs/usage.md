@@ -149,9 +149,9 @@ public class MyOpMode extends LinearOpMode {
 }
 ```
 
-    2) **Automatic session (AutoLog wrapper)**
+2) **Automatic session (AutoLog wrapper)**
 
-    PsiKit can automatically start/end a session using an OpMode wrapper. See [README-autolog.md](README-autolog.md) for examples.
+PsiKit can automatically start/end a session using an OpMode wrapper. See [README-autolog.md](README-autolog.md) for examples.
 
-    For `LinearOpMode`, you can optionally add explicit per-loop ticking via `PsiKitAutoLogger.linearPeriodicBeforeUser(...)` and `PsiKitAutoLogger.linearPeriodicAfterUser(...)` (see `ftc-autolog-examples.md`).
+For `LinearOpMode`, you can optionally add explicit per-loop ticking via `PsiKitAutoLogger.linearPeriodicBeforeUser(...)` and `PsiKitAutoLogger.linearPeriodicAfterUser(...)` (see `ftc-autolog-examples.md`).
 ## Next, [Install Advantage Scope](installAscope.md)
