@@ -135,7 +135,7 @@ Create a temporary JUnit test that:
 
 Then run:
 
-- `cd c:\code\psilynx\PsiKit`
+- `cd c:\code\TeraBridges\PsiKit` (or wherever you cloned PsiKit)
 - `$env:RLOG_PATH='c:\path\to\file.rlog'`
 - `.\gradlew.bat :core:test --no-daemon --tests <YourTestClass> --info --rerun-tasks`
 
