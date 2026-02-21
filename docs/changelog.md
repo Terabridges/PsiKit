@@ -24,6 +24,8 @@
   * `FtcLogTuning.prefetchBulkDataEachLoop` now defaults to `true` to isolate hub bulk transaction
     cost into `PsiKit/sessionTimes (us)/BulkPrefetchTotal` and per-hub
     `PsiKit/logTimes (us)/BulkPrefetch/<hub>`.
+  * Defaults updated for low-overhead operation: `bulkOnlyLogging = true`, `logImu = false`.
   * Improved low-overhead sampling semantics for wrappers that can skip background reads
     (color/distance, IMU, voltage): values are written when freshly sampled and sampled flags are
     emitted for freshness.
+  * Docs: added a dedicated FTC logging/tuning reference page and linked quick defaults from usage docs.

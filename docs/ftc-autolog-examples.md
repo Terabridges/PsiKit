@@ -4,6 +4,9 @@ PsiKit can automatically install logging around your OpModes without requiring y
 - extend a PsiKit base class, or
 - call `super` in lifecycle methods.
 
+For all runtime tuning knobs and defaults (`FtcLogTuning` + AutoLog settings), see
+[FTC Logging & Tuning Reference](ftc-logging-tuning-reference.md).
+
 This works by registering an FTC event-loop hook (`@OnCreateEventLoop`), then (for iterative OpModes) swapping the active OpMode to a wrapper that runs PsiKit logging hooks around your callbacks.
 
 ## Imports

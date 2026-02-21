@@ -33,6 +33,19 @@ public class LoggedTeleOp extends OpMode {
 
 Want to change ports/folder/filename, opt in only, or configure LinearOpModes? See [FTC Auto-Logging](ftc-autolog-examples.md).
 
+### FTC logging/tuning quick defaults
+
+Current important defaults:
+
+- AutoLog global enable: `false` (opt-in by `@PsiKitAutoLog`)
+- `FtcLogTuning.bulkOnlyLogging`: `true`
+- `FtcLogTuning.prefetchBulkDataEachLoop`: `true`
+- `FtcLogTuning.processColorDistanceSensorsInBackground`: `true`
+- `FtcLogTuning.logImu`: `false`
+
+For the full knob list (autolog settings + all `FtcLogTuning` options), see
+[FTC Logging & Tuning Reference](ftc-logging-tuning-reference.md).
+
 ---
 
 ## Logging your own data

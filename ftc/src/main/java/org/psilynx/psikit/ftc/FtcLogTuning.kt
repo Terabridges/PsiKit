@@ -16,7 +16,7 @@ object FtcLogTuning {
      * - Only AnalogInput voltage and DigitalChannel state are kept among non-motor wrappers
      * - Other wrappers and non-bulk session loggers are skipped
      */
-    @JvmField var bulkOnlyLogging: Boolean = false
+    @JvmField var bulkOnlyLogging: Boolean = true
 
     /** If true, issue one bulk read per hub at the start of each loop (after clearBulkCache). */
     @JvmField var prefetchBulkDataEachLoop: Boolean = true
@@ -28,7 +28,7 @@ object FtcLogTuning {
     @JvmField var nonBulkReadPeriodSec: Double = 0.0
 
     /** If true, PsiKit will log IMU values when the IMU is present in the HardwareMap. */
-    @JvmField var logImu: Boolean = true
+    @JvmField var logImu: Boolean = false
 
     /**
      * If true, PsiKit will sample color/distance sensors in the background (during
