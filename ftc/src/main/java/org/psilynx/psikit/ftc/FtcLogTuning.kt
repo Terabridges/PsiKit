@@ -83,6 +83,14 @@ object FtcLogTuning {
     @JvmField var pinpointWrapperPublishesOdometry: Boolean = false
 
     /**
+     * If true, PinpointWrapper `/Odometry/<name>` output is mapped to FTC Center/Rotated
+     * coordinates (AdvantageScope-friendly) from Pinpoint's field-bottom-left meter frame.
+     *
+     * If false, PinpointWrapper publishes raw Pinpoint meters directly.
+     */
+    @JvmField var pinpointWrapperPublishesCenterRotatedOdometry: Boolean = true
+
+    /**
      * If true, [PedroFollowerOdometryLogger] will also publish `/Odometry/<name>` and
      * `/Odometry/<name>/PedroInches` in addition to the canonical `/Odometry` paths.
      */

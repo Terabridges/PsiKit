@@ -28,6 +28,11 @@ class PinpointWrapper(
     true
 ), HardwareInput<GoBildaPinpointDriver> {
 
+    companion object {
+        private const val FTC_FIELD_SIZE_METERS = 144.0 * 0.0254
+        private const val FTC_FIELD_HALF_METERS = FTC_FIELD_SIZE_METERS / 2.0
+    }
+
     /** Set by [org.psilynx.psikit.ftc.HardwareMapWrapper] so we can also emit /Odometry/<name>. */
     var psikitName: String? = null
 
@@ -133,10 +138,30 @@ class PinpointWrapper(
         val name = psikitName
         if (FtcLogTuning.pinpointWrapperPublishesOdometry) {
             if (!name.isNullOrBlank()) {
-                poses.set(xMeters, yMeters, headingRad)
+                val odometryX: Double
+                val odometryY: Double
+                val odometryHeading: Double
+                if (FtcLogTuning.pinpointWrapperPublishesCenterRotatedOdometry) {
+                    odometryX = FTC_FIELD_HALF_METERS - yMeters
+                    odometryY = xMeters - FTC_FIELD_HALF_METERS
+                    odometryHeading = normalizeRadians(headingRad + Math.PI / 2.0)
+                } else {
+                    odometryX = xMeters
+                    odometryY = yMeters
+                    odometryHeading = headingRad
+                }
+
+                poses.set(odometryX, odometryY, odometryHeading)
                 Logger.processInputs("/Odometry/$name", poses)
             }
         }
+    }
+
+    private fun normalizeRadians(angleRad: Double): Double {
+        var angle = angleRad
+        while (angle >= Math.PI) angle -= 2.0 * Math.PI
+        while (angle < -Math.PI) angle += 2.0 * Math.PI
+        return angle
     }
 
     override fun fromLog(table: LogTable) {
