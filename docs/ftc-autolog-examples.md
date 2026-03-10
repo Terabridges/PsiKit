@@ -7,6 +7,13 @@ PsiKit can automatically install logging around your OpModes without requiring y
 For all runtime tuning knobs and defaults (`FtcLogTuning` + AutoLog settings), see
 [FTC Logging & Tuning Reference](ftc-logging-tuning-reference.md).
 
+If reflective field auto-logging is enabled (`FtcLogTuning.fieldAutoLogEnabled = true`),
+field keys are emitted as:
+
+- `PsiKit/Fields/<DeclaringClass>/<fieldName>`
+
+Example: `PsiKit/Fields/Spinner/floodgateCurrentAmps`
+
 This works by registering an FTC event-loop hook (`@OnCreateEventLoop`), then (for iterative OpModes) swapping the active OpMode to a wrapper that runs PsiKit logging hooks around your callbacks.
 
 ## Imports

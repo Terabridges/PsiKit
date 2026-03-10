@@ -95,4 +95,35 @@ object FtcLogTuning {
      * `/Odometry/<name>/PedroInches` in addition to the canonical `/Odometry` paths.
      */
     @JvmField var pedroFollowerPublishesNamedOdometry: Boolean = false
+
+    /**
+     * If true, PsiKit will reflectively log fields from objects annotated with
+     * [org.psilynx.psikit.ftc.autolog.PsiKitFieldAutoLog], plus any fields directly annotated with it.
+     *
+     * This is disabled by default to avoid unexpected loop overhead.
+     */
+    @JvmField var fieldAutoLogEnabled: Boolean = false
+
+    /**
+     * Base key prefix for reflective field auto-logging entries.
+     */
+    @JvmField var fieldAutoLogKeyPrefix: String = "PsiKit/Fields"
+
+    /**
+     * If > 0, reflective field sampling is rate-limited to this period (seconds).
+     * If <= 0, field auto-logging runs every loop.
+     */
+    @JvmField var fieldAutoLogPeriodSec: Double = 0.0
+
+    /**
+     * Maximum object graph depth for reflective scanning starting from the root object.
+     *
+     * Depth 0 scans only the root object fields.
+     */
+    @JvmField var fieldAutoLogMaxDepth: Int = 2
+
+    /**
+     * If true, static fields can be included when matched by annotation rules.
+     */
+    @JvmField var fieldAutoLogIncludeStaticFields: Boolean = false
 }

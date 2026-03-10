@@ -347,7 +347,7 @@ class PsiKitWrappedIterativeOpMode(
         val beforeUserStart = Logger.getRealTimestamp()
 
         Logger.periodicBeforeUser()
-        psiKitSession.logOncePerLoop(this)
+        psiKitSession.logOncePerLoop(this, delegate)
         maybeRunStartHookFromReplay()
 
         val beforeUserEnd = Logger.getRealTimestamp()
@@ -370,7 +370,7 @@ class PsiKitWrappedIterativeOpMode(
         val beforeUserStart = Logger.getRealTimestamp()
 
         Logger.periodicBeforeUser()
-        psiKitSession.logOncePerLoop(this)
+        psiKitSession.logOncePerLoop(this, delegate)
         maybeRunStartHookFromReplay()
 
         val beforeUserEnd = Logger.getRealTimestamp()

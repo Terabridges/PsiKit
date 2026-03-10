@@ -102,6 +102,37 @@ Source: `FtcLogTuning.kt`
 - `pedroFollowerPublishesNamedOdometry = false`
   - If `true`, Pedro follower logger also emits `/Odometry/<name>` and `/Odometry/<name>/PedroInches` alongside canonical odometry keys.
 
+### Reflective field auto-logging (new)
+
+- `fieldAutoLogEnabled = false`
+  - Global master switch for annotation-driven reflective field logging.
+- `fieldAutoLogKeyPrefix = "PsiKit/Fields"`
+  - Base key prefix for emitted entries.
+- `fieldAutoLogPeriodSec = 0.0`
+  - If `> 0`, rate-limits reflective sampling to this period.
+- `fieldAutoLogMaxDepth = 2`
+  - Maximum object-graph traversal depth from the root object.
+- `fieldAutoLogIncludeStaticFields = false`
+  - If `true`, static fields can be included when matched by annotation rules.
+
+Key format:
+
+- Reflective field entries are emitted as:
+  - `PsiKit/Fields/<DeclaringClass>/<fieldName>`
+- Example:
+  - `PsiKit/Fields/Spinner/floodgateCurrentAmps`
+- Note:
+  - There is no extra `ByClass` node and no object-path nesting in the key.
+
+Annotations (`org.psilynx.psikit.ftc.autolog`):
+
+- `@PsiKitFieldAutoLog`
+  - Class-level: log all fields on that class (except explicit opt-outs).
+  - Field-level: log this field even if containing class is not class-level opted in.
+- `@PsiKitNoFieldAutoLog`
+  - Class-level: disable class-level field auto-logging for that class.
+  - Field-level: exclude this field from reflective auto-logging.
+
 ---
 
 ## Timing attribution notes

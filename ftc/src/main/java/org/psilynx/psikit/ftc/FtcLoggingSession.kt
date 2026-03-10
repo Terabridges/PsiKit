@@ -79,6 +79,7 @@ class FtcLoggingSession {
 
     private val driverStationLogger = DriverStationLogger()
     private val pinpointOdometryLogger = PinpointOdometryLogger()
+    private val fieldAutoLogger = FieldAutoLogger()
 
     private var wrappedHardwareMap: com.qualcomm.robotcore.hardware.HardwareMap? = null
     private var allHubs: List<LynxModule>? = null
@@ -287,8 +288,14 @@ class FtcLoggingSession {
         }
     }
 
-    /** Call once per loop, after [Logger.periodicBeforeUser]. */
-    fun logOncePerLoop(opMode: OpMode) {
+    /**
+     * Call once per loop, after [Logger.periodicBeforeUser].
+     *
+     * @param fieldLogTarget optional object used for reflective field auto-logging.
+     * Defaults to [opMode].
+     */
+    @JvmOverloads
+    fun logOncePerLoop(opMode: OpMode, fieldLogTarget: Any? = opMode) {
         val loopStartNs = System.nanoTime()
 
         val clearStartNs = System.nanoTime()
@@ -456,6 +463,14 @@ class FtcLoggingSession {
         Logger.recordOutput(
             "PsiKit/sessionTimes (us)/LogOncePerLoopTotal",
             (loopEndNs - loopStartNs) / 1_000.0
+        )
+
+        val fieldsStartNs = System.nanoTime()
+        fieldAutoLogger.logRoot(fieldLogTarget)
+        val fieldsEndNs = System.nanoTime()
+        Logger.recordOutput(
+            "PsiKit/sessionTimes (us)/FieldAutoLog",
+            (fieldsEndNs - fieldsStartNs) / 1_000.0
         )
     }
 

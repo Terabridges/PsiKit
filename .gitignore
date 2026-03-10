@@ -1,5 +1,6 @@
 # gradle files
 .gradle/**
+**/.gradle/**
 
 # Ignore local Gradle caches, but DO commit the wrapper.
 gradle/**
@@ -21,6 +22,8 @@ ftc/build/**
 
 # compiled outputs
 core/bin/**
+ftc/bin/**
+test/bin/**
 
 logs/**
 core/logs/**

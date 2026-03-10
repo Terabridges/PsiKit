@@ -7,6 +7,8 @@ import com.qualcomm.hardware.limelightvision.LLStatus
 import com.qualcomm.hardware.limelightvision.Limelight3A
 import com.qualcomm.hardware.limelightvision.PsiKitLimelightJsonFactory
 import com.qualcomm.robotcore.hardware.HardwareDevice
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D
 import org.firstinspires.ftc.robotcore.internal.usb.EthernetOverUsbSerialNumber
 import org.json.JSONObject
 import org.psilynx.psikit.ftc.FtcLogTuning
@@ -41,19 +43,55 @@ class Limelight3AWrapper(
     @Volatile private var replayResult: LLResult? = null
     @Volatile private var replayStatus: LLStatus? = null
 
+    @Volatile private var cachedLoopResult: LLResult? = null
+    @Volatile private var cachedLoopTimestampSec: Double = Double.NaN
+
     override fun new(wrapped: Limelight3A?) = Limelight3AWrapper(wrapped)
 
-    private fun putPose2dAnd3dFromJsonPose6(table: LogTable, keyPrefix: String, arr: org.json.JSONArray?) {
-        if (arr == null || arr.length() < 6) return
-        val x = arr.optDouble(0, 0.0)
-        val y = arr.optDouble(1, 0.0)
-        val yawDeg = arr.optDouble(5, 0.0)
+    private fun refreshLatestResultSnapshotIfNeeded(force: Boolean = false): LLResult? {
+        if (Logger.isReplay() || device == null) {
+            return replayResult
+        }
+
+        val loopTs = Logger.getTimestamp()
+        val shouldRefresh = force || cachedLoopResult == null || cachedLoopTimestampSec != loopTs
+        if (!shouldRefresh) {
+            return cachedLoopResult
+        }
+
+        val r = try {
+            device.latestResult
+        } catch (_: Throwable) {
+            null
+        }
+
+        cachedLoopResult = r
+        cachedLoopTimestampSec = loopTs
+        captureResultJson(r)
+        return r
+    }
+
+    private fun putPose2dAnd3dFromSdkPose3d(table: LogTable, keyPrefix: String, pose: Pose3D?) {
+        if (pose == null) return
+        val x = pose.position.x
+        val y = pose.position.y
+        val yawDeg = pose.orientation.getYaw(AngleUnit.DEGREES)
         val pose2d = Pose2d(x, y, Rotation2d.fromDegrees(yawDeg))
         table.put("${keyPrefix}Pose2d", pose2d)
         table.put("${keyPrefix}Pose3d", Pose3d(pose2d))
     }
 
-    private fun putDerivedResultFields(table: LogTable, resultJson: String) {
+    private fun putBotPoseFromLatestResult(field: LogTable, latestResult: LLResult?): Boolean {
+        if (latestResult == null || !latestResult.isValid) return false
+        return try {
+            putPose2dAnd3dFromSdkPose3d(field, "bot", latestResult.botpose)
+            true
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    private fun putDerivedResultFields(table: LogTable, resultJson: String, latestResult: LLResult?) {
         val t = table.getSubtable("result")
         val field = table.getSubtable("field")
 
@@ -64,14 +102,7 @@ class Limelight3AWrapper(
             t.put("ty", 0.0)
             t.put("fiducialCount", 0)
             t.put("fiducialId0", -1)
-
-            // Field-friendly poses (structs)
-            field.put("botPose2d", Pose2d.kZero)
-            field.put("botPose3d", Pose3d.kZero)
-            field.put("wpiBluePose2d", Pose2d.kZero)
-            field.put("wpiBluePose3d", Pose3d.kZero)
-            field.put("wpiRedPose2d", Pose2d.kZero)
-            field.put("wpiRedPose3d", Pose3d.kZero)
+            field.put("botPoseSource", "none")
             return
         }
 
@@ -90,12 +121,18 @@ class Limelight3AWrapper(
             val fid0 = if (fidCount > 0) fid?.optJSONObject(0) else null
             t.put("fiducialId0", fid0?.optInt("fID", -1) ?: -1)
 
-            // AdvantageScope field widgets can consume Pose2d/Pose3d structs directly.
-            putPose2dAnd3dFromJsonPose6(field, "bot", obj.optJSONArray("botpose"))
-            putPose2dAnd3dFromJsonPose6(field, "wpiBlue", obj.optJSONArray("botpose_wpiblue"))
-            putPose2dAnd3dFromJsonPose6(field, "wpiRed", obj.optJSONArray("botpose_wpired"))
+            val usedSdkBotpose = (v != 0) && putBotPoseFromLatestResult(field, latestResult)
+            field.put("botPoseSource", if (usedSdkBotpose) "sdk_getBotpose" else "none")
         } catch (_: Throwable) {
-            // Keep logging resilient; if parsing fails we still have raw resultJson.
+            t.put("valid", latestResult?.isValid == true)
+            t.put("pipelineIndex", 0)
+            t.put("tx", 0.0)
+            t.put("ty", 0.0)
+            t.put("fiducialCount", 0)
+            t.put("fiducialId0", -1)
+
+            val usedSdkBotpose = putBotPoseFromLatestResult(field, latestResult)
+            field.put("botPoseSource", if (usedSdkBotpose) "sdk_getBotpose" else "none")
         }
     }
 
@@ -113,15 +150,27 @@ class Limelight3AWrapper(
             try {
                 cachedConnected = device.isConnected
             } catch (_: Throwable) {}
-            try {
-                captureResultJson(device.latestResult)
-            } catch (_: Throwable) {}
+            val latestResult = refreshLatestResultSnapshotIfNeeded()
             try {
                 cachedManufacturer = device.manufacturer
                 cachedDeviceName = device.deviceName
                 cachedConnectionInfo = device.connectionInfo
                 cachedVersion = device.version
             } catch (_: Throwable) {}
+
+            table.put("running", cachedRunning)
+            table.put("connected", cachedConnected)
+            table.put("resultJson", cachedResultJson)
+            table.put("resultTimestampMs", cachedResultTimestampMs)
+            table.put("statusJson", cachedStatusJson)
+
+            putDerivedResultFields(table, cachedResultJson, latestResult)
+
+            table.put("deviceName", cachedDeviceName)
+            table.put("connectionInfo", cachedConnectionInfo)
+            table.put("version", cachedVersion)
+            table.put("manufacturer", cachedManufacturer)
+            return
         }
 
         table.put("running", cachedRunning)
@@ -130,7 +179,7 @@ class Limelight3AWrapper(
         table.put("resultTimestampMs", cachedResultTimestampMs)
         table.put("statusJson", cachedStatusJson)
 
-        putDerivedResultFields(table, cachedResultJson)
+        putDerivedResultFields(table, cachedResultJson, null)
 
         table.put("deviceName", cachedDeviceName)
         table.put("connectionInfo", cachedConnectionInfo)
@@ -298,13 +347,7 @@ class Limelight3AWrapper(
             return replayResult
         }
 
-        val r = try {
-            device.latestResult
-        } catch (_: Throwable) {
-            null
-        }
-        captureResultJson(r)
-        return r
+        return refreshLatestResultSnapshotIfNeeded()
     }
 
     override fun getStatus(): LLStatus {
